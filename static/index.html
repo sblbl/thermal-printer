@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Thermal Printer</title>
+</head>
+<body>
+  <h1>Thermal Printer</h1>
+
+  <section>
+    <h2>Text</h2>
+    <p>Formatting: <code>**bold**</code>, <code>_underline_</code></p>
+    <form id="text-form">
+      <textarea name="text" rows="10" cols="60" placeholder="Type something..."></textarea><br>
+      <label>
+        Align:
+        <select name="align">
+          <option value="left">Left</option>
+          <option value="center">Center</option>
+          <option value="right">Right</option>
+        </select>
+      </label>
+      <button type="submit">Print</button>
+      <span id="text-status"></span>
+    </form>
+  </section>
+
+  <hr>
+
+  <section>
+    <h2>Image</h2>
+    <p>Printed full width (512px).</p>
+    <form id="image-form">
+      <input type="file" name="file" accept="image/*">
+      <button type="submit">Print</button>
+      <span id="image-status"></span>
+    </form>
+  </section>
+
+  <script>
+    async function submitForm(formId, url, statusId) {
+      document.getElementById(formId).addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const status = document.getElementById(statusId);
+        status.textContent = "Printing...";
+        const res = await fetch(url, { method: "POST", body: new FormData(e.target) });
+        if (res.ok) {
+          status.textContent = "Done!";
+        } else {
+          const data = await res.json().catch(() => ({}));
+          status.textContent = "Error: " + (data.detail ?? res.status);
+        }
+      });
+    }
+    submitForm("text-form", "/print/text", "text-status");
+    submitForm("image-form", "/print/image", "image-status");
+  </script>
+</body>
+</html>
